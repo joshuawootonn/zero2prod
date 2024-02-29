@@ -1,11 +1,17 @@
+use crate::configuration::get_configuration;
+use crate::startup::run;
 use std::net::TcpListener;
 
+mod configuration;
 mod routes;
 mod startup;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
-    let listener = TcpListener::bind("127.0.0.1:8000").expect("Failed to bind port 8000");
+    let configuration = get_configuration().expect("Failed to read configuration");
 
-    startup::run(listener)?.await
+    let address = format!("127.0.0.1:{}", configuration.application_port);
+    let listener = TcpListener::bind(address)?;
+
+    run(listener)?.await
 }
